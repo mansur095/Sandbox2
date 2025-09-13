@@ -17,3 +17,10 @@ export const ACCOUNT_TYPE_OPTIONS = [
   { value: 'Локальная', title: 'Локальная' },
   { value: 'LDAP', title: 'LDAP' }
 ] as const
+
+export const VALIDATION_RULES = {
+  MAX_TAG_LENGTH: 50,
+  MAX_LOGIN_LENGTH: 100,
+  MAX_PASSWORD_LENGTH: 100,
+  TAG_SEPARATOR: ';'
+} as const

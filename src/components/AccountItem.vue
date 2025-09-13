@@ -1,35 +1,54 @@
 <template>
-  <v-row class="account-item mb-3 align-center">
-    <v-col cols="3">
-      <v-text-field label="Метки" :model-value="account.tags.map(t => t.text).join('; ')" />
+  <v-row class="account-item mb-3">
+    <v-col cols="12" md="3">
+      <v-text-field v-model="tagsString" @blur="handleTagsBlur" placeholder="Метки через ;" :maxlength="VALIDATION_RULES.MAX_TAG_LENGTH" />
     </v-col>
-    <v-col cols="2">
-      <v-select label="Тип записи" :items="ACCOUNT_TYPE_OPTIONS" :model-value="account.type" />
+    <v-col cols="12" md="2">
+      <v-select :model-value="account.type" @update:model-value="updateType" :items="ACCOUNT_TYPE_OPTIONS" />
     </v-col>
-    <v-col cols="3">
-      <v-text-field label="Логин" :model-value="account.login" />
+    <v-col cols="12" :md="account.type === 'LDAP' ? 6 : 3">
+      <v-text-field v-model="localLogin" @blur="handleLoginBlur" placeholder="Логин" :maxlength="VALIDATION_RULES.MAX_LOGIN_LENGTH" />
     </v-col>
-    <v-col cols="3">
-      <v-text-field label="Пароль" :model-value="account.password" />
+    <v-col v-if="account.type !== 'LDAP'" cols="12" md="3">
+      <v-text-field v-model="localPassword" @blur="handlePasswordBlur" type="password" placeholder="Пароль" :maxlength="VALIDATION_RULES.MAX_PASSWORD_LENGTH" :disabled="!account.type" />
     </v-col>
-    <v-col cols="1">
-      <v-btn @click="accountStore.deleteAccount(account.id)" icon="mdi-delete" variant="text" />
+    <v-col cols="12" md="1" class="d-flex align-center justify-center">
+      <v-btn @click="accountStore.deleteAccount(account.id)" icon="mdi-delete" size="small" variant="text" />
     </v-col>
   </v-row>
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useAccountStore } from '../stores/useAccountStore'
-import type { Account } from '../types/account'
-import { ACCOUNT_TYPE_OPTIONS } from '../types/account'
+import type { Account, AccountType } from '../types/account'
+import { ACCOUNT_TYPE_OPTIONS, VALIDATION_RULES } from '../types/account'
 
-defineProps<{
-  account: Account
-}>()
-
+const props = defineProps<{ account: Account }>()
 const accountStore = useAccountStore()
-</script>
 
-<style scoped>
-.account-item { padding: 8px; }
-</style>
+const tagsString = ref(accountStore.getTagsAsString(props.account.tags))
+const localLogin = ref(props.account.login)
+const localPassword = ref(props.account.password || '')
+
+watch(() => props.account.tags, (newTags) => { tagsString.value = accountStore.getTagsAsString(newTags) })
+watch(() => props.account.login, (newLogin) => { localLogin.value = newLogin })
+watch(() => props.account.password, (newPassword) => { localPassword.value = newPassword || '' })
+
+const handleTagsBlur = () => {
+  accountStore.updateAccount(props.account.id, { tags: accountStore.parseTagsFromString(tagsString.value) })
+}
+const handleLoginBlur = () => {
+  accountStore.updateAccount(props.account.id, { login: localLogin.value })
+}
+const handlePasswordBlur = () => {
+  accountStore.updateAccount(props.account.id, { password: localPassword.value })
+}
+const updateType = (type: AccountType) => {
+  const updates: Partial<Account> = { type }
+  if (type === 'LDAP') {
+    updates.password = null
+  }
+  accountStore.updateAccount(props.account.id, updates)
+}
+</script>

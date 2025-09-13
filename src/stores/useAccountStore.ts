@@ -18,7 +18,7 @@ export const useAccountStore = defineStore('account', () => {
   const accounts = ref<Account[]>(getInitialAccounts())
   const touchedFields = ref<Record<string, Set<string>>>({})
 
-    watch(accounts, (newAccounts) => {
+  watch(accounts, (newAccounts) => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newAccounts))
   }, { deep: true })
 
@@ -50,7 +50,7 @@ export const useAccountStore = defineStore('account', () => {
     return tags.map(tag => tag.text).join(VALIDATION_RULES.TAG_SEPARATOR + ' ')
   }
 
-    const getValidationErrors = (account: Account): ValidationErrors => {
+  const getValidationErrors = (account: Account): ValidationErrors => {
     return {
       type: !account.type,
       login: !account.login.trim(),
@@ -58,12 +58,12 @@ export const useAccountStore = defineStore('account', () => {
     }
   }
 
-    const touchField = (id: string, field: 'login' | 'password' | 'type') => { // <-- ДОБАВЛЕНО
-    if (!touchedFields.value[id]) touchedFields.value[id] = new Set()
-    touchedFields.value[id].add(field)
+  const touchField = (id: string, field: 'login' | 'password' | 'type') => {
+  if (!touchedFields.value[id]) touchedFields.value[id] = new Set()
+      touchedFields.value[id].add(field)
   }
 
-  const isFieldTouched = (id: string, field: 'login' | 'password' | 'type'): boolean => { // <-- ДОБАВЛЕНО
+  const isFieldTouched = (id: string, field: 'login' | 'password' | 'type'): boolean => {
     return touchedFields.value[id]?.has(field) || false
   }
 

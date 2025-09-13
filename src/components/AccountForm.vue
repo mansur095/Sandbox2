@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="account-form">
-        <v-row align="center" class="mb-4">
+    <v-row align="center" class="mb-4">
       <v-col>
         <div class="d-flex align-center">
           <h1 class="text-h5 mr-3">Учетные записи</h1>
@@ -10,24 +10,25 @@
             size="small"
             variant="outlined"
             :style="{
-                borderRadius: '8px',
-                aspectRatio: '1',
+              borderRadius: '8px',
+              aspectRatio: '1',
               minWidth: '0'
             }"
           />
         </div>
       </v-col>
     </v-row>
-    <v-alert 
-      type="info" 
-      variant="tonal" 
-      density="compact" 
+
+    <v-alert
+      type="info"
+      variant="tonal"
+      density="compact"
       class="mb-4"
     >
       Для указания нескольких меток используйте разделитель <strong>;</strong>
     </v-alert>
 
-    <v-row v-if="accountStore.accounts.length > 0" class="d-none d-md-flex mb-2">
+    <v-row v-if="accountStore.accounts.length > 0" class="d-none d-md-flex">
       <v-col cols="3" class="text-caption text-grey-darken-1">Метки</v-col>
       <v-col cols="2" class="text-caption text-grey-darken-1">Тип записи</v-col>
       <v-col cols="3" class="text-caption text-grey-darken-1">Логин</v-col>

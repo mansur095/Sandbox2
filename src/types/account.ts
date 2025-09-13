@@ -12,6 +12,12 @@ export interface Account {
   password: string | null
 }
 
+export interface ValidationErrors {
+  login: boolean
+  password: boolean
+  type: boolean
+}
+
 export const ACCOUNT_TYPE_OPTIONS = [
   { value: '', title: 'Выберите тип' },
   { value: 'Локальная', title: 'Локальная' },

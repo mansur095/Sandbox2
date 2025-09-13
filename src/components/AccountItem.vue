@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAccountStore } from '../stores/useAccountStore'
 import type { Account, AccountType } from '../types/account'
 import { ACCOUNT_TYPE_OPTIONS, VALIDATION_RULES } from '../types/account'
@@ -35,16 +35,22 @@ watch(() => props.account.tags, (newTags) => { tagsString.value = accountStore.g
 watch(() => props.account.login, (newLogin) => { localLogin.value = newLogin })
 watch(() => props.account.password, (newPassword) => { localPassword.value = newPassword || '' })
 
+const errors = computed(() => accountStore.getValidationErrors(props.account))
+
 const handleTagsBlur = () => {
-  accountStore.updateAccount(props.account.id, { tags: accountStore.parseTagsFromString(tagsString.value) })
+  const tags = accountStore.parseTagsFromString(tagsString.value)
+  accountStore.updateAccount(props.account.id, { tags })
 }
 const handleLoginBlur = () => {
+  accountStore.touchField(props.account.id, 'login')
   accountStore.updateAccount(props.account.id, { login: localLogin.value })
 }
 const handlePasswordBlur = () => {
+  accountStore.touchField(props.account.id, 'password')
   accountStore.updateAccount(props.account.id, { password: localPassword.value })
 }
 const updateType = (type: AccountType) => {
+  accountStore.touchField(props.account.id, 'type')
   const updates: Partial<Account> = { type }
   if (type === 'LDAP') {
     updates.password = null

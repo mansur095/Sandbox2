@@ -1,10 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Account, Tag } from '../types/account'
+import type { Account, Tag, ValidationErrors } from '../types/account'
 import { VALIDATION_RULES } from '../types/account'
+
+const LOCAL_STORAGE_KEY = 'account-manager-accounts'
 
 export const useAccountStore = defineStore('account', () => {
   const accounts = ref<Account[]>([])
+  const touchedFields = ref<Record<string, Set<string>>>({})
 
   const addAccount = () => {
     accounts.value.push({
@@ -34,8 +37,32 @@ export const useAccountStore = defineStore('account', () => {
     return tags.map(tag => tag.text).join(VALIDATION_RULES.TAG_SEPARATOR + ' ')
   }
 
+    const getValidationErrors = (account: Account): ValidationErrors => {
+    return {
+      type: !account.type,
+      login: !account.login.trim(),
+      password: account.type === 'Локальная' && !account.password
+    }
+  }
+
+    const touchField = (id: string, field: 'login' | 'password' | 'type') => { // <-- ДОБАВЛЕНО
+    if (!touchedFields.value[id]) touchedFields.value[id] = new Set()
+    touchedFields.value[id].add(field)
+  }
+
+  const isFieldTouched = (id: string, field: 'login' | 'password' | 'type'): boolean => { // <-- ДОБАВЛЕНО
+    return touchedFields.value[id]?.has(field) || false
+  }
+
   return {
-    accounts, addAccount, deleteAccount, updateAccount,
-    parseTagsFromString, getTagsAsString
+    accounts, 
+    addAccount, 
+    deleteAccount, 
+    updateAccount,
+    parseTagsFromString, 
+    getTagsAsString, 
+    getValidationErrors, 
+    touchField, 
+    isFieldTouched
   }
 })

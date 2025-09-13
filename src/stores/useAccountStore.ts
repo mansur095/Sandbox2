@@ -1,13 +1,26 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { Account, Tag, ValidationErrors } from '../types/account'
 import { VALIDATION_RULES } from '../types/account'
 
 const LOCAL_STORAGE_KEY = 'account-manager-accounts'
 
 export const useAccountStore = defineStore('account', () => {
-  const accounts = ref<Account[]>([])
+
+  const getInitialAccounts = (): Account[] => {
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY)
+      if (saved) return JSON.parse(saved)
+    } catch (error) { console.warn('Ошибка загрузки из localStorage:', error) }
+    return []
+  }
+
+  const accounts = ref<Account[]>(getInitialAccounts())
   const touchedFields = ref<Record<string, Set<string>>>({})
+
+    watch(accounts, (newAccounts) => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newAccounts))
+  }, { deep: true })
 
   const addAccount = () => {
     accounts.value.push({
